@@ -1,3 +1,19 @@
+let latestSpectralData = [];
+let sendData = false;   // control flag
+app.get("/control", (req, res) => {
+  res.json({ send: sendData });
+});
+
+app.post("/start", (req, res) => {
+  sendData = true;
+  res.send("Started");
+});
+
+app.post("/stop", (req, res) => {
+  sendData = false;
+  res.send("Stopped");
+});
+
 const express = require("express");
 const cors = require("cors");
 
