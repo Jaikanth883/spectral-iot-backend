@@ -1,39 +1,46 @@
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+
+// Railway provides PORT automatically
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+// ---------------- DATA STORAGE ----------------
 let latestSpectralData = [];
-let sendData = false;   // control flag
+let sendData = false;
+
+// ---------------- ROUTES ----------------
+
+// health check (IMPORTANT for Railway)
+app.get("/", (req, res) => {
+  res.send("Spectral IoT Backend Running");
+});
+
+// ESP32 sends data
+app.post("/data", (req, res) => {
+  latestSpectralData = req.body;
+  res.send("Data received");
+});
+
+// UI fetches data
+app.get("/data", (req, res) => {
+  res.json(latestSpectralData);
+});
+
+// ESP32 checks control state
 app.get("/control", (req, res) => {
   res.json({ send: sendData });
 });
 
+// UI start button
 app.post("/start", (req, res) => {
   sendData = true;
   res.send("Started");
 });
 
+// UI stop button
 app.post("/stop", (req, res) => {
-  sendData = false;
-  res.send("Stopped");
-});
-
-const express = require("express");
-const cors = require("cors");
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-let latestSpectralData = [];
-
-app.post("/data", (req, res) => {
-  latestSpectralData = req.body;
-  console.log("Data received:", latestSpectralData.length);
-  res.status(200).send("Data stored");
-});
-
-app.get("/data", (req, res) => {
-  res.json(latestSpectralData);
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
